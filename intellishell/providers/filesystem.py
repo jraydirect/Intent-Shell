@@ -175,9 +175,9 @@ class FileSystemProvider(BaseProvider):
             elif intent_name == "list_files":
                 return await self._list_files(context)
             elif intent_name == "list_downloads":
-                return await self._list_downloads()
+                return await self._list_downloads(context)
             elif intent_name == "list_desktop":
-                return await self._list_desktop()
+                return await self._list_desktop(context)
             else:
                 return ExecutionResult(
                     success=False,
@@ -303,8 +303,37 @@ class FileSystemProvider(BaseProvider):
             # Sort by modified time (newest first)
             files.sort(key=lambda f: f["modified"], reverse=True)
             
-            # Take top 10
-            recent_files = files[:10]
+            # Extract count from context or default to 10
+            count = 10  # Default to 10
+            if context:
+                # Try parsing from original input first (most reliable for "list X files")
+                if "original_input" in context:
+                    import re
+                    # Look for numbers in the input
+                    numbers = re.findall(r'\b\d+\b', context["original_input"])
+                    if numbers:
+                        try:
+                            # Take the first number found (likely the count)
+                            count = int(numbers[0])
+                            # Limit to reasonable range (1-100)
+                            count = max(1, min(100, count))
+                        except ValueError:
+                            pass
+                
+                # Fallback to entities if no number found in input
+                if count == 10 and "entities" in context:
+                    for entity in context["entities"]:
+                        if entity.type == "number":
+                            try:
+                                count = int(entity.value)
+                                # Limit to reasonable range (1-100)
+                                count = max(1, min(100, count))
+                                break
+                            except ValueError:
+                                pass
+            
+            # Take top N files
+            recent_files = files[:count]
             
             if not recent_files:
                 from intellishell.utils.display import format_message
@@ -315,7 +344,7 @@ class FileSystemProvider(BaseProvider):
             
             # Format as rich table
             from intellishell.utils.display import format_file_table
-            title = f"Recent files in {target_dir.name}"
+            title = f"Recent files in {target_dir.name}" if count == 10 else f"Top {count} recent files in {target_dir.name}"
             formatted_table = format_file_table(recent_files, title)
             
             return ExecutionResult(
@@ -330,10 +359,24 @@ class FileSystemProvider(BaseProvider):
                 message=f"Permission denied accessing {target_dir}"
             )
     
-    async def _list_downloads(self) -> ExecutionResult:
+    async def _list_downloads(self, context: Optional[Dict[str, Any]] = None) -> ExecutionResult:
         """List files in Downloads folder."""
-        return await self._list_files({"original_input": "list downloads"})
+        # Merge context with downloads-specific input
+        merged_context = {"original_input": "list downloads"}
+        if context:
+            merged_context.update(context)
+            # Preserve original_input from context if it exists (for count extraction)
+            if "original_input" in context:
+                merged_context["original_input"] = context["original_input"]
+        return await self._list_files(merged_context)
     
-    async def _list_desktop(self) -> ExecutionResult:
+    async def _list_desktop(self, context: Optional[Dict[str, Any]] = None) -> ExecutionResult:
         """List files in Desktop folder."""
-        return await self._list_files({"original_input": "list desktop"})
+        # Merge context with desktop-specific input
+        merged_context = {"original_input": "list desktop"}
+        if context:
+            merged_context.update(context)
+            # Preserve original_input from context if it exists (for count extraction)
+            if "original_input" in context:
+                merged_context["original_input"] = context["original_input"]
+        return await self._list_files(merged_context)

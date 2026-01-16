@@ -169,7 +169,7 @@ def format_file_table(files: List[Dict[str, Any]], title: str = "Recent Files") 
     from datetime import datetime
     
     rows = []
-    for i, file_info in enumerate(files[:10], 1):
+    for i, file_info in enumerate(files, 1):
         name = file_info.get('name', 'N/A')
         size_mb = file_info.get('size_mb', 0)
         
