@@ -66,6 +66,12 @@ class AppProvider(BaseProvider):
                 weight=1.0,
                 aliases=["startup folder", "startup apps"]
             ),
+            IntentTrigger(
+                pattern="open app",
+                intent_name="launch_app",
+                weight=0.9,
+                aliases=["launch app", "start app", "run app", "open"]
+            ),
         ]
     
     async def execute(
@@ -87,6 +93,8 @@ class AppProvider(BaseProvider):
                 return await self._launch_control_panel()
             elif intent_name == "open_startup":
                 return await self._open_startup()
+            elif intent_name == "launch_app":
+                return await self._launch_app(context)
             else:
                 return ExecutionResult(
                     success=False,
@@ -151,3 +159,94 @@ class AppProvider(BaseProvider):
             message="Opening Startup folder...",
             data={"shell_path": "shell:Startup"}
         )
+    
+    async def _launch_app(self, context: Optional[Dict[str, Any]] = None) -> ExecutionResult:
+        """Launch an application by name."""
+        if not context or "original_input" not in context:
+            return ExecutionResult(
+                success=False,
+                message="No application name specified. Usage: open brave"
+            )
+        
+        input_text = context["original_input"].lower().strip()
+        
+        # Extract app name from "open [app]" pattern
+        # Remove common prefixes
+        prefixes = ["open", "launch", "start", "run"]
+        app_name = input_text
+        for prefix in prefixes:
+            if app_name.startswith(prefix):
+                app_name = app_name[len(prefix):].strip()
+                break
+        
+        if not app_name:
+            return ExecutionResult(
+                success=False,
+                message="No application name specified. Usage: open brave"
+            )
+        
+        # Map common app names to their executable names
+        app_mapping = {
+            "brave": "brave.exe",
+            "chrome": "chrome.exe",
+            "firefox": "firefox.exe",
+            "edge": "msedge.exe",
+            "discord": "discord.exe",
+            "notepad": "notepad.exe",
+            "cursor": "cursor.exe",
+            "code": "code.exe",
+            "vscode": "code.exe",
+            "visual studio code": "code.exe",
+            "spotify": "spotify.exe",
+            "steam": "steam.exe",
+            "vlc": "vlc.exe",
+            "photoshop": "photoshop.exe",
+            "paint": "mspaint.exe",
+            "word": "winword.exe",
+            "excel": "excel.exe",
+            "powerpoint": "powerpnt.exe",
+            "outlook": "outlook.exe",
+        }
+        
+        # Try mapped name first
+        executable = app_mapping.get(app_name, None)
+        
+        # If not in mapping, try the name as-is (Windows might find it)
+        if not executable:
+            # Try with .exe extension
+            if not app_name.endswith(".exe"):
+                executable = f"{app_name}.exe"
+            else:
+                executable = app_name
+        
+        try:
+            # Try launching via os.startfile (Windows will search PATH and Start Menu)
+            # This works for most installed applications
+            os.startfile(executable)
+            
+            # Also try subprocess as fallback for some apps
+            # But startfile is usually better for Windows apps
+            return ExecutionResult(
+                success=True,
+                message=f"Opening {app_name.title()}...",
+                data={"app": executable}
+            )
+        except FileNotFoundError:
+            # If startfile fails, try subprocess with shell=True (searches PATH)
+            try:
+                subprocess.Popen([executable], shell=True)
+                return ExecutionResult(
+                    success=True,
+                    message=f"Opening {app_name.title()}...",
+                    data={"app": executable}
+                )
+            except Exception as e:
+                return ExecutionResult(
+                    success=False,
+                    message=f"Could not launch '{app_name}'. Make sure it's installed and in your PATH, or try the full path."
+                )
+        except Exception as e:
+            return ExecutionResult(
+                success=False,
+                message=f"Error launching '{app_name}': {e}"
+            )

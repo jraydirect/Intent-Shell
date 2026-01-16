@@ -317,6 +317,8 @@ class AIBridge:
             "- For 'what files in X' or 'show files in X' → use list_downloads/list_desktop/list_files",
             "- For 'what's in downloads' → list_downloads (not open_downloads)",
             "- For 'what processes' / 'show processes' / 'list processes' → use list_processes (READ-ONLY)",
+            "- For 'open [app name]' like 'open brave', 'open discord', 'open chrome' → use launch_app (app provider)",
+            "- For 'open [folder]' like 'open desktop', 'open downloads' → use open_desktop/open_downloads (filesystem provider)",
             "- Questions about contents → list_* intents, not open_*",
             "- Questions asking 'what' / 'show' / 'list' → use READ-ONLY list_* intents, NOT kill/delete intents",
             "- NEVER route viewing/listing queries to destructive actions (kill, delete, etc.)",
@@ -327,6 +329,8 @@ class AIBridge:
             '"what files are in downloads?" → {"intent": "list_downloads", "provider": "filesystem", "confidence": 0.95, "reasoning": "list files"}',
             '"what processes are running?" → {"intent": "list_processes", "provider": "system", "confidence": 0.95, "reasoning": "list processes"}',
             '"show me running processes" → {"intent": "list_processes", "provider": "system", "confidence": 0.95, "reasoning": "list processes"}',
+            '"open brave" → {"intent": "launch_app", "provider": "app", "confidence": 0.95, "reasoning": "launch application"}',
+            '"open discord" → {"intent": "launch_app", "provider": "app", "confidence": 0.95, "reasoning": "launch application"}',
             '"what\'s my computer name?" → {"intent": "get_hostname", "provider": "system_monitor", "confidence": 0.95, "reasoning": "get hostname"}',
         ])
         
@@ -342,7 +346,7 @@ Your job is to interpret user commands and map them to structured intents.
 
 Available Providers and Intents:
 - filesystem: open_desktop, open_downloads, open_documents, open_home, open_recycle_bin, open_explorer, list_files, list_downloads, list_desktop
-- app: launch_notepad, launch_calculator, launch_settings, launch_task_manager, launch_control_panel, open_startup
+- app: launch_notepad, launch_calculator, launch_settings, launch_task_manager, launch_control_panel, open_startup, launch_app
 - system_monitor: get_system_info, get_hostname, get_username, get_disk_space
 - system: list_processes, kill_process, kill_by_name, kill_most_memory, check_admin
 - watch: watch_downloads, watch_for_file_type, stop_watch, list_watches
