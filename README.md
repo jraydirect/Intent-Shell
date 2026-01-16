@@ -1,138 +1,267 @@
-# Intent Shell v0.1 (Stateful Intelligence)
+# IntelliShell v0.1
 
-Advanced provider-based semantic command shell with fuzzy matching, entity extraction, ambiguity resolution, and ML-ready transaction logging.
+**Windows-first semantic command shell with AI reasoning, self-healing execution, and vector memory.**
 
-## Architecture Highlights
+Natural language interface for Windows with LLM-powered intent routing, automatic error recovery, and semantic command history.
 
-```
-┌─────────────────────────────────────────────────┐
-│    Ambiguity Resolver (0.6-0.8 → Suggestions)   │
-│    Entity Extractor (%TEMP%, clipboard, files)  │
-│    Transaction Logger (~/.intent/history.jsonl) │
-└────────────────┬────────────────────────────────┘
-                 │
-┌────────────────▼────────────────────────────────┐
-│           Async REPL Loop                       │
-│    Global Context (Clipboard Tracking)          │
-└────┬───────────────────────────┬────────────────┘
-     │                           │
-┌────▼──────────┐       ┌────────▼────────┐
-│ Semantic      │       │  Execution      │
-│ Parser        │──────▶│  Planner        │
-│ (<50ms)       │       │  (Strategy)     │
-└───────────────┘       └────────┬────────┘
-                                 │
-                        ┌────────▼────────┐
-                        │  Provider       │
-                        │  Registry       │
-                        └────────┬────────┘
-                                 │
-    ┌────────────────────────────┼────────────────────────────┐
-    │                            │                            │
-┌───▼──────────┐  ┌──────────────▼──────────┐  ┌─────────────▼─────────┐
-│  FileSystem  │  │  WatchProvider          │  │  SystemProvider       │
-│  Provider    │  │  (watchdog monitoring)  │  │  (Process mgmt/Admin) │
-└──────────────┘  └─────────────────────────┘  └───────────────────────┘
-```
+## Key Features
 
-## Advanced Features (v0.1)
+- **Natural Language Commands** - "open brave", "list 20 processes", "what did I do yesterday?"
+- **AI-Powered Routing** - Ollama integration for understanding conversational queries
+- **Self-Healing Execution** - Automatic error detection and repair with human-in-the-loop
+- **Semantic Memory** - Vector-based command history search (optional ChromaDB)
+- **Tab Completion** - Smart autocomplete for commands and intents
+- **Process Management** - List, monitor, and manage Windows processes
+- **File Operations** - Navigate folders, list files, watch for changes
+- **Application Launcher** - Open any Windows application by name
 
-### 1. Ambiguity Resolver
-Commands with 0.6-0.8 confidence show "Did you mean...?" suggestions:
-
-```
-intent> opn desktp
-Did you mean...?
-
-  1. open desktop (0.75 confidence)
-     → open_desktop via filesystem
-  2. open downloads (0.62 confidence)
-     → open_downloads via filesystem
-
-Please rephrase your command to be more specific.
-```
-
-### 2. Entity Extraction
-
-**Environment Variables**:
-```bash
-intent> open %TEMP%
-# Automatically expands to C:\Users\...\AppData\Local\Temp
-```
-
-**Clipboard Context**:
-```bash
-# Copy a path in Windows Explorer (Ctrl+C)
-intent> open clipboard
-# Opens the copied path
-```
-
-**File Detection**:
-```bash
-intent> watch downloads for report.pdf
-# Extracts "report.pdf" as entity
-```
-
-### 3. Watch Provider (Active Observer)
-
-Monitor folders for file changes:
+## Quick Start
 
 ```bash
-intent> watch downloads for pdf
-# Sends Windows notification when new PDF appears
+# Install
+pip install -e .
 
-intent> list watches
-# Shows active monitors
+# Optional: Full features (semantic memory, notifications, etc.)
+pip install -e ".[full]"
 
-intent> stop watching
-# Stops all watches
+# Run
+ishell
 ```
 
-### 4. System Provider (Process Management)
+## Usage Examples
 
-**List Processes**:
-```bash
-intent> list processes
-Top 10 Processes by Memory:
-  1. chrome.exe - 512.3 MB (PID: 1234)
-  2. code.exe - 387.1 MB (PID: 5678)
-  ...
-```
-
-**Kill Processes** (with safety):
-```bash
-intent> kill notepad
-Terminated 2 instance(s) of 'notepad.exe' (PIDs: [1234, 5678])
-
-intent> most memory
-Top 5 memory consumers:
-  1. chrome.exe - 512.3 MB (PID: 1234)
-...
-To kill 'chrome.exe', run: kill process 1234
-```
-
-**Admin Detection**:
-```bash
-intent> check admin
-✗ Not running as Administrator
-
-To run as admin: Right-click terminal → Run as Administrator
-```
-
-### 5. Native Notifications
-
-Long-running tasks trigger Windows Toast notifications:
+### File Operations
 
 ```bash
-intent> watch downloads for pdf
-# When PDF appears: Windows notification pops up
+intellishell> open desktop
+intellishell> list 5 most recent items in downloads
+intellishell> watch downloads for pdf
 ```
 
-Supports: `plyer`, `win10toast`, `windows-toasts`
+### Process Management
 
-### 6. Transaction Logging
+```bash
+intellishell> list 20 processes
+intellishell> kill notepad
+intellishell> check admin
+```
 
-Every command logged to `~/.intent/history.jsonl` for ML training:
+### Application Launching
+
+```bash
+intellishell> open brave
+intellishell> open discord
+intellishell> open cursor
+intellishell> open notepad
+```
+
+### Natural Language Queries
+
+```bash
+intellishell> what are my recent commands
+intellishell> show me 15 processes currently running
+intellishell> list 7 files in my downloads folder
+```
+
+### System Information
+
+```bash
+intellishell> system info
+intellishell> get hostname
+intellishell> disk space
+```
+
+## Architecture
+
+```
+User Input
+    |
+    v
+[Natural Language Detection]
+    |
+    +---> [LLM Router (Ollama)] ---> Intent Match
+    |
+    +---> [Rule-Based Parser] ------> Intent Match
+    |
+    v
+[Execution Planner]
+    |
+    v
+[Self-Healing Executor]
+    |
+    +---> Try Execute
+    |
+    +---> Detect Error
+    |
+    +---> AI Repair Suggestion
+    |
+    +---> Human Approval
+    |
+    +---> Retry
+    |
+    v
+[Provider Execution]
+    |
+    +---> FileSystem Provider
+    +---> App Provider
+    +---> System Provider
+    +---> Watch Provider
+    +---> Doctor Provider
+    +---> Memory Provider
+```
+
+## AI Bridge (Ollama)
+
+IntelliShell uses Ollama for natural language understanding:
+
+```bash
+# Natural language queries are automatically routed to LLM
+intellishell> show me my computer name
+# LLM interprets -> get_hostname intent
+
+intellishell> what processes are using the most memory
+# LLM interprets -> list_processes intent
+```
+
+**Setup:**
+1. Install Ollama: https://ollama.ai
+2. Pull a model: `ollama pull llama3:8b`
+3. IntelliShell auto-detects and uses it
+
+**Disable AI:** `ishell --no-ai`
+
+## Self-Healing Execution
+
+Automatic error recovery with AI-powered repair suggestions:
+
+```bash
+intellishell> opn desktp
+# Detects typo, suggests correction
+# "Did you mean: open desktop?"
+```
+
+When commands fail, the self-healing executor:
+1. Detects the error type
+2. Generates repair suggestion via LLM
+3. Asks for human approval
+4. Retries with corrected command
+
+**Disable self-healing:** `ishell --no-self-healing`
+
+## Semantic Memory (Optional)
+
+Vector-based command history for semantic search:
+
+```bash
+# Install ChromaDB
+pip install chromadb
+
+# Then use semantic queries
+intellishell> what folder did I open yesterday?
+intellishell> what did I do with downloads?
+intellishell> recent memories
+```
+
+Commands are automatically indexed as vector embeddings in `~/.intellishell/vector_store`.
+
+**Disable memory:** `ishell --no-memory`
+
+## Available Commands
+
+### FileSystem Provider
+- `open desktop` - Open Desktop folder
+- `open downloads` - Open Downloads folder
+- `open documents` - Open Documents folder
+- `open recycle bin` - Open Recycle Bin
+- `open explorer` - Open File Explorer
+- `list files` - List files in current directory
+- `list downloads` - List files in Downloads
+- `list desktop` - List files on Desktop
+
+### App Provider
+- `open notepad` - Launch Notepad
+- `open calculator` - Launch Calculator
+- `open settings` - Launch Windows Settings
+- `open task manager` - Launch Task Manager
+- `open control panel` - Launch Control Panel
+- `open [app name]` - Launch any application (brave, discord, chrome, cursor, etc.)
+
+### System Provider
+- `list processes` - List top 10 processes by memory
+- `list [N] processes` - List N processes
+- `kill process [PID]` - Kill process by PID
+- `kill [name]` - Kill process by name
+- `most memory` - Show top memory consumer
+- `check admin` - Check if running as Administrator
+
+### SystemMonitor Provider
+- `system info` - Display system information
+- `get hostname` - Show computer name
+- `get username` - Show current user
+- `disk space` - Show disk usage
+
+### Watch Provider
+- `watch downloads` - Monitor Downloads folder
+- `watch downloads for pdf` - Monitor for specific file type
+- `list watches` - Show active file monitors
+- `stop watching` - Stop all file monitors
+
+### Doctor Provider
+- `check system health` - Run system diagnostics
+- `check dependencies` - Verify installed dependencies
+
+### Memory Provider (requires ChromaDB)
+- `what did I [action]` - Semantic search of command history
+- `recent memories` - Show recent command memories
+
+### Special Commands
+- `help` - Show available commands
+- `history` - Show command history
+- `!N` - Replay command N from history
+- `stats` - Show session statistics
+- `manifest` - Show detailed system manifest
+- `clear` / `cls` - Clear screen
+- `exit` / `quit` - Exit shell
+
+## Command-Line Options
+
+```bash
+# Interactive mode (default)
+ishell
+
+# Single command execution
+ishell -c "open desktop"
+
+# Debug mode (show intent matching details)
+ishell --debug
+
+# Disable AI bridge
+ishell --no-ai
+
+# Disable semantic memory
+ishell --no-memory
+
+# Custom log file
+ishell --log-file /path/to/log.txt
+
+# Show version
+ishell --version
+```
+
+## Configuration Files
+
+```
+~/.intellishell/
+├── vector_store/          # ChromaDB vector storage (if enabled)
+├── logs/
+│   └── shell.log         # Structured logs
+├── history.jsonl         # Transaction log
+└── repairs.jsonl         # Self-healing repair log
+```
+
+## Transaction Logging
+
+Every command is logged to `~/.intellishell/history.jsonl`:
 
 ```json
 {
@@ -147,280 +276,119 @@ Every command logged to `~/.intent/history.jsonl` for ML training:
 }
 ```
 
-### 7. System Manifest
+## Dependencies
 
-Generate command documentation:
+### Core (Required)
+- `pydantic>=2.0.0` - Data validation
+- `requests>=2.28.0` - HTTP client
+- `prompt-toolkit>=3.0.0` - Interactive shell with tab completion
 
+### Optional (Full Install)
+- `psutil>=5.9.0` - Process management, disk space
+- `pyperclip>=1.8.0` - Clipboard integration
+- `rich>=13.0.0` - Enhanced terminal UI
+- `watchdog>=3.0.0` - Filesystem monitoring
+- `plyer>=2.1.0` or `win10toast>=0.9` - Native notifications
+- `chromadb>=0.4.0` - Semantic memory (vector storage)
+
+**Install all features:**
 ```bash
-intent> manifest
-Intent Shell Manifest:
-==================================================
-Version: 0.1.0
-Total Commands: 25
-Providers: 5
-
-FILESYSTEM
-Description: Filesystem navigation and directory access
-Capabilities: READ_ONLY, ASYNC
-Commands: 6
-  🔒 open desktop → open_desktop
-  🔒 open downloads → open_downloads
-  ...
-```
-
-### 8. History Replay
-
-```bash
-intent> history
-Command History (last 20):
-==================================================
-  1. ✓ [2026-01-16 10:30:45] open desktop (0.95)
-  2. ✓ [2026-01-16 10:31:12] system info (0.88)
-  3. ✗ [2026-01-16 10:32:01] invalid command (0.00)
-
-Use !N to replay a command (e.g., !5)
-
-intent> !1
-Replaying: open desktop
-Opening Desktop: C:\Users\...\Desktop
-```
-
-## Installation
-
-```bash
-# Basic installation
-pip install -e .
-
-# Full installation (all features)
 pip install -e ".[full]"
-
-# Development
-pip install -e ".[dev]"
 ```
 
-## Usage
+## Safety Features
 
-### Interactive Mode
-
-```bash
-intent
-```
-
-### Debug Mode (shows entity extraction)
-
-```bash
-intent --debug
-[DEBUG] Intent: open_desktop
-[DEBUG] Provider: filesystem
-[DEBUG] Confidence: 0.95
-[DEBUG] Entities: [('special_path', 'C:\Users\...\Desktop')]
-```
-
-### Single Command
-
-```bash
-intent -c "open desktop"
-intent -c "watch downloads for pdf"
-```
-
-## Available Commands
-
-### FileSystem Provider
-- `open desktop` - Desktop folder
-- `open downloads` - Downloads folder
-- `open documents` - Documents folder
-- `open recycle bin` - Recycle Bin
-- `open explorer` - File Explorer
-- `open home` - Home directory
-- `open %TEMP%` - Environment variable expansion
-
-### App Provider
-- `open notepad` - Notepad
-- `open calculator` - Calculator
-- `open settings` - Windows Settings
-- `open task manager` - Task Manager
-- `open control panel` - Control Panel
-- `open startup folder` - Startup folder
-
-### SystemMonitor Provider
-- `system info` - System information
-- `get hostname` - Computer name
-- `get username` - Current user
-- `disk space` - Disk usage (requires psutil)
-
-### Watch Provider (requires watchdog)
-- `watch downloads` - Monitor Downloads folder
-- `watch downloads for pdf` - Monitor for PDFs
-- `list watches` - Show active watches
-- `stop watching` - Stop all watches
-
-### System Provider (requires psutil)
-- `list processes` - Top 10 by memory
-- `kill process 1234` - Kill by PID
-- `kill notepad` - Kill by name
-- `most memory` - Show top memory consumer
-- `check admin` - Admin privilege status
-
-### Special Commands
-- `help` - Show help
-- `stats` - Session statistics
-- `manifest` - System manifest
-- `history` - Command history
-- `!N` - Replay command N
-- `exit` - Exit shell
+- **Read-Only Default** - Most operations are non-destructive
+- **Critical Process Protection** - Cannot kill system processes
+- **Admin Detection** - Warns when elevated privileges needed
+- **Human-in-the-Loop** - Destructive actions require confirmation
+- **Safety Levels** - GREEN (safe), YELLOW (caution), RED (requires approval)
+- **Circuit Breaker** - Prevents repeated failures
 
 ## Performance
 
-- **Parser**: <50ms matching (optimized fast path)
+- **Parser**: <50ms intent matching
 - **Entity Extraction**: <10ms
-- **Registry Lookup**: O(1)
-- **Ambiguity Check**: Automatic (0.6-0.8 range)
-
-## Dependencies
-
-### Core (No Dependencies)
-Basic functionality works out of the box.
-
-### Optional (Full Install)
-- `psutil` - Process management, disk space
-- `pyperclip` - Clipboard integration
-- `watchdog` - Filesystem monitoring
-- `plyer` or `win10toast` - Native notifications
-- `rich` - Enhanced UI (future)
-
-**Dependency Isolation**: Shell boots even if libraries missing (graceful degradation).
-
-## File Locations
-
-```
-~/.intent/
-├── logs/
-│   └── shell.log          # Structured logs
-└── history.jsonl          # Transaction log (ML training)
-```
-
-## Engineering Standards
-
-### Zero Latency Parser
-- Optimized token matching
-- Fast path for exact matches
-- Sub-50ms guarantee
-
-### Admin Elevation Handling
-
-```python
-try:
-    # Protected operation
-    kill_process(pid)
-except PermissionError:
-    print("This requires Admin privileges. Run intent as Administrator?")
-```
-
-### Transaction Logging
-
-Every intent-action pair logged for:
-- ML fine-tuning
-- Usage analytics
-- Debugging
-- Command replay
-
-### Safety Checks
-
-```python
-critical_processes = ['csrss.exe', 'winlogon.exe', 'services.exe']
-if process_name in critical_processes:
-    raise SafetyError("Cannot kill critical system process")
-```
+- **LLM Routing**: ~100-500ms (when needed)
+- **Command Execution**: Async, non-blocking
 
 ## Creating Custom Providers
 
 ```python
-from intent_shell.providers.base import BaseProvider, IntentTrigger, ExecutionResult
+from intellishell.providers.base import BaseProvider, IntentTrigger, ExecutionResult
 
 class MyProvider(BaseProvider):
     @property
     def name(self) -> str:
         return "my_provider"
     
+    @property
+    def description(self) -> str:
+        return "My custom provider"
+    
     def _initialize_triggers(self) -> None:
         self.triggers = [
-            IntentTrigger("my command", "do_thing", 1.0)
+            IntentTrigger(
+                pattern="my command",
+                intent_name="do_thing",
+                weight=1.0,
+                aliases=["alternative command"]
+            )
         ]
     
     async def execute(self, intent_name, context=None):
-        # Access entities
-        entities = context.get("entities", [])
-        
-        # Access clipboard
-        clipboard = context.get("clipboard")
-        
-        return ExecutionResult(True, "Done!")
+        if intent_name == "do_thing":
+            return ExecutionResult(
+                success=True,
+                message="Thing done!",
+                data={"result": "success"}
+            )
+```
+
+Register in `intellishell/providers/registry.py`:
+```python
+from intellishell.providers.my_provider import MyProvider
+
+def auto_discover(self, semantic_memory=None):
+    providers = [
+        # ... existing providers ...
+        MyProvider(),
+    ]
 ```
 
 ## Testing
 
 ```bash
+# Run all tests
 pytest tests/ -v
-pytest tests/test_parser.py -v  # Parser tests
-pytest tests/test_ambiguity.py -v  # Ambiguity resolution
+
+# Specific test files
+pytest tests/test_parser.py -v
+pytest tests/test_providers.py -v
+pytest tests/test_session.py -v
 ```
 
-## Advanced Examples
+## Troubleshooting
 
-### Environment Variable Expansion
-
+### Semantic Memory Not Available
 ```bash
-intent> open %APPDATA%\Microsoft
-# Expands to C:\Users\...\AppData\Roaming\Microsoft
-
-intent> open %USERPROFILE%\Desktop
-# Expands to C:\Users\...\Desktop
+pip install chromadb
 ```
 
-### Clipboard Pipeline
+### Ollama Not Found
+1. Install Ollama: https://ollama.ai
+2. Pull a model: `ollama pull llama3:8b`
+3. Verify: `ollama list`
 
-```bash
-# In Windows Explorer, copy a path (Ctrl+C)
-# Then:
-intent> open clipboard
-# Opens the copied path
+### Tab Completion Not Working
+- Requires `prompt-toolkit>=3.0.0`
+- Install: `pip install prompt-toolkit`
 
-intent> system info to clipboard
-# Copies system info to clipboard
-```
-
-### Watch + Notify
-
-```bash
-intent> watch downloads for report.pdf
-Watching Downloads folder for .pdf files.
-
-# When report.pdf appears:
-# → Windows notification: "New .pdf file detected: report.pdf"
-```
-
-### Process Management
-
-```bash
-intent> list processes
-# Shows top 10
-
-intent> most memory
-# Shows top 5 with safety check
-
-intent> kill notepad
-# Kills all notepad instances
-
-intent> kill process 1234
-# Kills specific PID
-```
-
-## Security & Safety
-
-- **Read-Only by Default**: Most providers are READ_ONLY
-- **Critical Process Protection**: Cannot kill system processes
-- **Admin Detection**: Warns if privileges needed
-- **Safety Confirmations**: Destructive actions require explicit PID
+### Admin Privileges Required
+Some commands (like killing processes) require Administrator privileges:
+- Right-click terminal
+- Select "Run as Administrator"
+- Run `ishell` again
 
 ## License
 
@@ -428,19 +396,19 @@ MIT
 
 ## Contributing
 
-1. Create provider in `intent_shell/providers/`
-2. Implement `BaseProvider` ABC
-3. Register in `ProviderRegistry.auto_discover()`
+1. Fork the repository
+2. Create a feature branch
+3. Implement your provider/feature
 4. Add tests
-5. Update manifest
+5. Submit a pull request
 
 ## Future Roadmap
 
-- [ ] Trie-based parser (O(m) instead of O(n))
-- [ ] Plugin system for external providers
-- [ ] Rich TUI with autocomplete
-- [ ] Cross-platform support (Linux, macOS)
-- [ ] ML-powered intent prediction using history.jsonl
-- [ ] Remote providers via RPC
-- [ ] Voice command integration
-- [ ] Multi-language support
+- Plugin system for external providers
+- Cross-platform support (Linux, macOS)
+- Voice command integration
+- Multi-language support
+- Remote providers via RPC
+- Advanced process monitoring and analytics
+- Integration with Windows Terminal
+- Custom theme support
