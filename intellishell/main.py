@@ -62,9 +62,21 @@ class IntentShell:
                 logger.warning(f"Failed to initialize semantic memory: {e}")
                 self.semantic_memory = None
         
+        # Initialize clipboard history
+        self.clipboard_history = None
+        try:
+            from intellishell.utils.clipboard import ClipboardHistory
+            self.clipboard_history = ClipboardHistory(auto_monitor=True)
+            logger.info("Clipboard history initialized with monitoring")
+        except Exception as e:
+            logger.warning(f"Failed to initialize clipboard history: {e}")
+        
         # Initialize provider registry first (needed for AI bridge)
         self.registry = ProviderRegistry()
-        self.registry.auto_discover(semantic_memory=self.semantic_memory)
+        self.registry.auto_discover(
+            semantic_memory=self.semantic_memory,
+            clipboard_history=self.clipboard_history
+        )
         
         # Initialize AI bridge with registry for dynamic tool mapping
         self.ai_bridge = None

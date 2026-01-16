@@ -35,6 +35,7 @@ async def execute_single_command(
     # Initialize components
     from intellishell.memory import SemanticMemory
     from intellishell.ai_bridge import AIBridge
+    from intellishell.utils.clipboard import ClipboardHistory
     
     semantic_memory = None
     try:
@@ -44,8 +45,14 @@ async def execute_single_command(
     except:
         pass
     
+    clipboard_history = None
+    try:
+        clipboard_history = ClipboardHistory(auto_monitor=False)  # Don't auto-monitor in single command mode
+    except:
+        pass
+    
     registry = ProviderRegistry()
-    registry.auto_discover(semantic_memory=semantic_memory)
+    registry.auto_discover(semantic_memory=semantic_memory, clipboard_history=clipboard_history)
     
     ai_bridge = None
     if enable_ai:

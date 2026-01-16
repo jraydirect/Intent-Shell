@@ -37,6 +37,15 @@ INTENT_SAFETY_LEVELS = {
     "show_recent": SafetyLevel.GREEN,
     "list_watches": SafetyLevel.GREEN,
     
+    # Clipboard operations
+    "show_clipboard_history": SafetyLevel.GREEN,
+    "search_clipboard": SafetyLevel.GREEN,
+    "restore_clipboard": SafetyLevel.GREEN,
+    "clipboard_stats": SafetyLevel.GREEN,
+    "start_clipboard_monitoring": SafetyLevel.YELLOW,
+    "stop_clipboard_monitoring": SafetyLevel.YELLOW,
+    "clear_clipboard_history": SafetyLevel.YELLOW,
+    
     # YELLOW: State-changing operations
     "launch_notepad": SafetyLevel.YELLOW,
     "launch_calculator": SafetyLevel.YELLOW,

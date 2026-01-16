@@ -10,6 +10,7 @@ Natural language interface for Windows with LLM-powered intent routing, automati
 - **AI-Powered Routing** - Ollama integration for understanding conversational queries
 - **Self-Healing Execution** - Automatic error detection and repair with human-in-the-loop
 - **Semantic Memory** - Vector-based command history search (optional ChromaDB)
+- **Clipboard History** - Persistent clipboard manager with search and restore
 - **Tab Completion** - Smart autocomplete for commands and intents
 - **Process Management** - List, monitor, and manage Windows processes
 - **File Operations** - Navigate folders, list files, watch for changes
@@ -108,6 +109,7 @@ User Input
     +---> Watch Provider
     +---> Doctor Provider
     +---> Memory Provider
+    +---> Clipboard Provider
 ```
 
 ## AI Bridge (Ollama)
@@ -166,6 +168,43 @@ Commands are automatically indexed as vector embeddings in `~/.intellishell/vect
 
 **Disable memory:** `ishell --no-memory`
 
+## Clipboard History Manager
+
+Persistent clipboard history with automatic monitoring and search:
+
+```bash
+# View clipboard history (last 20 entries)
+intellishell> clipboard history
+
+# Search clipboard history
+intellishell> clipboard search "that API key"
+intellishell> clipboard search password
+
+# Restore previous clipboard entry
+intellishell> clipboard restore 5
+
+# View statistics
+intellishell> clipboard stats
+
+# Control monitoring
+intellishell> clipboard start monitoring
+intellishell> clipboard stop monitoring
+
+# Clear history
+intellishell> clipboard clear
+```
+
+**Features:**
+- Automatic background monitoring of clipboard changes
+- Persistent storage to `~/.intellishell/clipboard_history.jsonl`
+- Search through clipboard history
+- Restore any previous clipboard entry
+- Deduplication (skips consecutive duplicates)
+- Size limits (default: 100 entries, 10MB max)
+- Thread-safe operations
+
+**Storage Location:** `~/.intellishell/clipboard_history.jsonl`
+
 ## Available Commands
 
 ### FileSystem Provider
@@ -214,6 +253,15 @@ Commands are automatically indexed as vector embeddings in `~/.intellishell/vect
 - `what did I [action]` - Semantic search of command history
 - `recent memories` - Show recent command memories
 
+### Clipboard Provider
+- `clipboard history` - Show clipboard history (last 20 entries)
+- `clipboard search <query>` - Search clipboard history
+- `clipboard restore N` - Restore entry N to clipboard
+- `clipboard clear` - Clear clipboard history
+- `clipboard stats` - Show clipboard statistics
+- `clipboard start monitoring` - Start background clipboard monitoring
+- `clipboard stop monitoring` - Stop clipboard monitoring
+
 ### Special Commands
 - `help` - Show available commands
 - `history` - Show command history
@@ -255,6 +303,7 @@ ishell --version
 ├── vector_store/          # ChromaDB vector storage (if enabled)
 ├── logs/
 │   └── shell.log         # Structured logs
+├── clipboard_history.jsonl  # Clipboard history storage
 ├── history.jsonl         # Transaction log
 └── repairs.jsonl         # Self-healing repair log
 ```

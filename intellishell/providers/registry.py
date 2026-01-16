@@ -61,12 +61,13 @@ class ProviderRegistry:
         """
         return self._trigger_index.get(pattern)
     
-    def auto_discover(self, semantic_memory=None) -> None:
+    def auto_discover(self, semantic_memory=None, clipboard_history=None) -> None:
         """
         Auto-discover and register all available providers.
         
         Args:
             semantic_memory: Optional SemanticMemory instance for MemoryProvider
+            clipboard_history: Optional ClipboardHistory instance for ClipboardProvider
         """
         from intellishell.providers.filesystem import FileSystemProvider
         from intellishell.providers.system_monitor import SystemMonitorProvider
@@ -105,6 +106,14 @@ class ProviderRegistry:
                 logger.info("MemoryProvider registered with semantic memory")
             except ImportError as e:
                 logger.debug(f"MemoryProvider not available: {e}")
+        
+        # Clipboard provider (always available, creates own history if not provided)
+        try:
+            from intellishell.providers.clipboard_provider import ClipboardProvider
+            providers.append(ClipboardProvider(clipboard_history=clipboard_history))
+            logger.info("ClipboardProvider registered")
+        except ImportError as e:
+            logger.debug(f"ClipboardProvider not available: {e}")
         
         for provider in providers:
             self.register(provider)
