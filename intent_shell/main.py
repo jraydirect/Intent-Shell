@@ -16,6 +16,7 @@ from intent_shell.utils.transaction_log import TransactionLogger
 from intent_shell.memory import SemanticMemory
 from intent_shell.ai_bridge import AIBridge
 from intent_shell.validation import SelfCorrection
+from intent_shell.utils.terminal import enable_royal_blue_terminal, reset_terminal_color, TerminalColors
 import logging
 
 logger = logging.getLogger(__name__)
@@ -451,26 +452,35 @@ class IntentShell:
     
     async def run(self) -> None:
         """Start the async REPL loop."""
-        self.print_banner()
+        # Enable royal blue terminal color
+        enable_royal_blue_terminal()
         
-        while self.running:
-            try:
-                user_input = await asyncio.to_thread(input, self.prompt)
-                self.running = await self.process_command(user_input)
-            except KeyboardInterrupt:
-                print("\nUse 'exit' to quit.")
-                continue
-            except EOFError:
-                print("\nExiting Intent Shell...")
-                break
-            except Exception as e:
-                print(f"Error: {e}")
-                logger.exception("REPL error")
-                continue
-        
-        if self.debug:
-            print()
-            self._show_stats()
+        try:
+            self.print_banner()
+            
+            while self.running:
+                try:
+                    # Prompt with royal blue color
+                    colored_prompt = TerminalColors.colorize(self.prompt, TerminalColors.ROYAL_BLUE) if TerminalColors.supports_color() else self.prompt
+                    user_input = await asyncio.to_thread(input, colored_prompt)
+                    self.running = await self.process_command(user_input)
+                except KeyboardInterrupt:
+                    print("\nUse 'exit' to quit.")
+                    continue
+                except EOFError:
+                    print("\nExiting Intent Shell...")
+                    break
+                except Exception as e:
+                    print(f"Error: {e}")
+                    logger.exception("REPL error")
+                    continue
+            
+            if self.debug:
+                print()
+                self._show_stats()
+        finally:
+            # Reset terminal color on exit
+            reset_terminal_color()
 
 
 def main(
