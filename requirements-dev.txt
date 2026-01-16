@@ -1,0 +1,21 @@
+# Core dependencies
+pydantic>=2.0.0
+requests>=2.28.0
+
+# Development dependencies
+pytest>=7.0
+pytest-asyncio>=0.21.0
+black>=23.0
+flake8>=6.0
+mypy>=1.0
+
+# Optional runtime dependencies for full features
+psutil>=5.9.0
+pyperclip>=1.8.0
+rich>=13.0.0
+watchdog>=3.0.0
+plyer>=2.1.0
+win10toast>=0.9
+
+# AI and Memory
+chromadb>=0.4.0
