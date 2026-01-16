@@ -89,7 +89,7 @@ class SystemProvider(BaseProvider):
             elif intent_name == "kill_most_memory":
                 return await self._kill_most_memory()
             elif intent_name == "list_processes":
-                return await self._list_processes()
+                return await self._list_processes(context)
             elif intent_name == "check_admin":
                 return await self._check_admin()
             else:
@@ -311,10 +311,42 @@ Or use: runas /user:Administrator intent
                 message="psutil not installed. Install with: pip install psutil"
             )
     
-    async def _list_processes(self) -> ExecutionResult:
+    async def _list_processes(
+        self,
+        context: Optional[Dict[str, Any]] = None
+    ) -> ExecutionResult:
         """List running processes."""
         try:
             import psutil
+            
+            # Extract count from entities or original input
+            count = 10  # Default to 10
+            if context:
+                # Try parsing from original input first (most reliable for "list X processes")
+                if "original_input" in context:
+                    import re
+                    # Look for numbers in the input
+                    numbers = re.findall(r'\b\d+\b', context["original_input"])
+                    if numbers:
+                        try:
+                            # Take the first number found (likely the count)
+                            count = int(numbers[0])
+                            # Limit to reasonable range (1-100)
+                            count = max(1, min(100, count))
+                        except ValueError:
+                            pass
+                
+                # Fallback to entities if no number found in input
+                if count == 10 and "entities" in context:
+                    for entity in context["entities"]:
+                        if entity.type == "number":
+                            try:
+                                count = int(entity.value)
+                                # Limit to reasonable range (1-100)
+                                count = max(1, min(100, count))
+                                break
+                            except ValueError:
+                                pass
             
             processes = []
             for proc in psutil.process_iter(['name', 'pid', 'memory_info']):
@@ -333,12 +365,13 @@ Or use: runas /user:Administrator intent
             
             # Format as rich table
             from intellishell.utils.display import format_process_table
-            formatted_table = format_process_table(processes[:10], "Top 10 Processes by Memory")
+            title = f"Top {count} Processes by Memory" if count < len(processes) else f"All {len(processes)} Processes by Memory"
+            formatted_table = format_process_table(processes[:count], title)
             
             return ExecutionResult(
                 success=True,
                 message=formatted_table,
-                data={"processes": processes[:10], "total": len(processes)}
+                data={"processes": processes[:count], "total": len(processes), "shown": count}
             )
         except ImportError:
             return ExecutionResult(

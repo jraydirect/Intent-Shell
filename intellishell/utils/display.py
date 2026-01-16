@@ -140,7 +140,7 @@ def format_process_table(processes: List[Dict[str, Any]], title: str = "Top Proc
         return format_message(f"{title}\n(No processes found)", success=False)
     
     rows = []
-    for i, proc in enumerate(processes[:10], 1):
+    for i, proc in enumerate(processes, 1):
         name = proc.get('name', 'N/A')
         pid = proc.get('pid', 'N/A')
         memory_mb = proc.get('memory_mb', 0)

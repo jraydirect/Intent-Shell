@@ -67,8 +67,10 @@ class EntityExtractor:
             (r'%([A-Z_]+)%', 'envvar'),
             # File extensions
             (r'\b(\w+\.(txt|pdf|doc|docx|jpg|png|log|json|xml|py|exe))\b', 'file'),
-            # Numbers
+            # Numbers with units
             (r'\b(\d+)\s*(gb|mb|kb|percent|%)', 'number'),
+            # Plain numbers (for counts, PIDs, etc.) - but not if followed by unit
+            (r'\b(\d+)\b(?!\s*(?:gb|mb|kb|percent|%))', 'number'),
         ]
     
     def expand_env_vars(self, text: str) -> str:

@@ -47,6 +47,11 @@ class IntelliShellCompleter(Completer):
         text = document.text_before_cursor
         text_lower = text.lower().strip()
         
+        # Calculate how many characters to replace (all text before cursor)
+        # start_position must be <= 0 (negative = go back from cursor)
+        # This ensures the typed text is replaced, not appended
+        start_position = -len(text)
+        
         # Collect all possible completions
         completions = set()
         
@@ -90,9 +95,10 @@ class IntelliShellCompleter(Completer):
             if pattern_lower.startswith(text_lower) or text_lower in pattern_lower:
                 completions.add(pattern)
         
-        # Yield sorted completions
+        # Yield sorted completions with correct start_position
+        # This replaces the typed text instead of appending to it
         for completion in sorted(completions):
-            yield Completion(completion, start_position=0)
+            yield Completion(completion, start_position=start_position)
     
     def _get_all_intents(self) -> List[str]:
         """Get all available intents from all providers."""
