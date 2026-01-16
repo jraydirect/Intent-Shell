@@ -209,6 +209,10 @@ class IntentShell:
             self._show_help()
             return True
         
+        if user_input_lower in ["clear", "cls"]:
+            self._clear_screen()
+            return True
+        
         # Intercept help-related natural language queries
         help_patterns = [
             "what are the available commands",
@@ -419,6 +423,19 @@ class IntentShell:
         
         print(f"\nPlease rephrase your command to be more specific.")
     
+    def _clear_screen(self) -> None:
+        """Clear the terminal screen and redisplay banner."""
+        import os
+        # Windows
+        if os.name == 'nt':
+            os.system('cls')
+        # Unix/Linux/Mac
+        else:
+            os.system('clear')
+        
+        # Redisplay banner
+        self.print_banner()
+    
     async def _replay_history(self, command: str) -> bool:
         """Replay a command from history."""
         try:
@@ -451,6 +468,7 @@ class IntentShell:
         
         print("\nSPECIAL COMMANDS:")
         print("  • help / ? - Show this help")
+        print("  • clear / cls - Clear screen")
         print("  • stats - Show session statistics")
         print("  • manifest - Show system manifest")
         print("  • history - Show command history")

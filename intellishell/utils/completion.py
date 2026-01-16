@@ -22,7 +22,7 @@ class IntelliShellCompleter(Completer):
         # Built-in commands
         self.builtin_commands = [
             "help", "?", "manifest", "history", "hist", "stats", "session stats",
-            "exit", "quit", "bye"
+            "clear", "cls", "exit", "quit", "bye"
         ]
         
         # Special command prefixes
