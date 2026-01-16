@@ -303,16 +303,25 @@ class AIBridge:
         
         prompt_parts.extend([
             "",
+            "Special Commands (handled internally, NOT provider intents):",
+            "- 'help' / '?' - Show available commands (use literal 'help')",
+            "- 'manifest' - Show system manifest",
+            "- 'history' - Show command history",
+            "- 'stats' - Show session statistics",
+            "",
             "Output ONLY valid JSON:",
             '{"intent": "intent_name", "provider": "provider_name", "parameters": {}, "confidence": 0.0-1.0, "reasoning": "brief"}',
             "",
             "Rules:",
+            "- For 'what are available commands' / 'show commands' / 'list commands' → suggest user type 'help'",
             "- For 'what files in X' or 'show files in X' → use list_downloads/list_desktop/list_files",
             "- For 'what's in downloads' → list_downloads (not open_downloads)",
             "- Questions about contents → list_* intents, not open_*",
+            "- DO NOT create intents that don't exist! Only use intents from the provider list above.",
             "",
             "Examples:",
             '"what files are in downloads?" → {"intent": "list_downloads", "provider": "filesystem", "confidence": 0.95, "reasoning": "list files"}',
+            '"what are available commands?" → {"intent": "help", "provider": "builtin", "confidence": 0.9, "reasoning": "use help command"}',
             '"what\'s my computer name?" → {"intent": "get_hostname", "provider": "system_monitor", "confidence": 0.95, "reasoning": "get hostname"}',
         ])
         

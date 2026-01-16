@@ -157,8 +157,24 @@ class IntentShell:
             print("Exiting Intent Shell...")
             return False
         
-        # Special commands
-        if user_input.lower().strip() in ["help", "?"]:
+        # Special commands (check before parsing)
+        user_input_lower = user_input.lower().strip()
+        if user_input_lower in ["help", "?"]:
+            self._show_help()
+            return True
+        
+        # Intercept help-related natural language queries
+        help_patterns = [
+            "what are the available commands",
+            "what commands are available",
+            "show me the commands",
+            "list commands",
+            "what can I do",
+            "show help",
+            "show available commands"
+        ]
+        if any(pattern in user_input_lower for pattern in help_patterns):
+            print("ℹ To see available commands, type 'help' or use the 'manifest' command.")
             self._show_help()
             return True
         
