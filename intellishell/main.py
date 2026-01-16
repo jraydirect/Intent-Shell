@@ -521,11 +521,50 @@ class IntentShell:
         try:
             self.print_banner()
             
+            # Initialize tab completion (if available)
+            use_tab_completion = True
+            completer = None
+            history = None
+            try:
+                from intellishell.utils.completion import IntelliShellCompleter
+                from prompt_toolkit import prompt as pt_prompt
+                from prompt_toolkit.history import InMemoryHistory
+                
+                completer = IntelliShellCompleter(
+                    provider_registry=self.registry,
+                    parser=self.parser
+                )
+                history = InMemoryHistory()
+            except ImportError:
+                use_tab_completion = False
+                logger.warning("prompt-toolkit not available, tab completion disabled")
+            
             while self.running:
                 try:
-                    # Prompt with royal blue color
-                    colored_prompt = TerminalColors.colorize(self.prompt, TerminalColors.ROYAL_BLUE) if TerminalColors.supports_color() else self.prompt
-                    user_input = await asyncio.to_thread(input, colored_prompt)
+                    # Use prompt_toolkit for tab completion if available
+                    if use_tab_completion and completer:
+                        from prompt_toolkit import prompt as pt_prompt
+                        from prompt_toolkit.formatted_text import ANSI
+                        
+                        # For prompt_toolkit, use ANSI wrapper for colored prompt
+                        if TerminalColors.supports_color():
+                            colored_prompt = ANSI(TerminalColors.colorize(self.prompt, TerminalColors.ROYAL_BLUE))
+                        else:
+                            colored_prompt = self.prompt
+                        
+                        user_input = await asyncio.to_thread(
+                            pt_prompt,
+                            colored_prompt,
+                            completer=completer,
+                            history=history,
+                            complete_while_typing=True,
+                            enable_open_in_editor=True,
+                        )
+                    else:
+                        # Fallback to standard input with colored prompt
+                        colored_prompt = TerminalColors.colorize(self.prompt, TerminalColors.ROYAL_BLUE) if TerminalColors.supports_color() else self.prompt
+                        user_input = await asyncio.to_thread(input, colored_prompt)
+                    
                     self.running = await self.process_command(user_input)
                 except KeyboardInterrupt:
                     print("\nUse 'exit' to quit.")
