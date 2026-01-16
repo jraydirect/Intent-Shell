@@ -1,7 +1,7 @@
 """Memory provider for semantic search over command history."""
 
 from typing import Optional, Dict, Any
-from intent_shell.providers.base import (
+from intellishell.providers.base import (
     BaseProvider,
     IntentTrigger,
     ExecutionResult,

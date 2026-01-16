@@ -46,7 +46,7 @@ class IntentShell:
         self.enable_memory = enable_memory
         self.enable_self_healing = enable_self_healing
         self.running = True
-        self.prompt = "intent> "
+        self.prompt = "intellishell> "
         
         # Initialize semantic memory
         self.semantic_memory = None
@@ -113,21 +113,58 @@ class IntentShell:
         logger.info(f"IntelliShell initialized (session: {self.session.session_id})")
     
     def print_banner(self) -> None:
-        """Display welcome banner."""
-        banner = r"""
-$$$$$$\            $$\                          $$\            $$$$$$\  $$\                 $$\ $$\ 
-\_$$  _|           $$ |                         $$ |          $$  __$$\ $$ |                $$ |$$ |
-  $$ |  $$$$$$$\ $$$$$$\    $$$$$$\  $$$$$$$\ $$$$$$\         $$ /  \__|$$$$$$$\   $$$$$$\  $$ |$$ |
-  $$ |  $$  __$$\\_$$  _|  $$  __$$\ $$  __$$\\_$$  _|        \$$$$$$\  $$  __$$\ $$  __$$\ $$ |$$ |
-  $$ |  $$ |  $$ | $$ |    $$$$$$$$ |$$ |  $$ | $$ |           \____$$\ $$ |  $$ |$$$$$$$$ |$$ |$$ |
-  $$ |  $$ |  $$ | $$ |$$\ $$   ____|$$ |  $$ | $$ |$$\       $$\   $$ |$$ |  $$ |$$   ____|$$ |$$ |
-$$$$$$\ $$ |  $$ | \$$$$  |\$$$$$$$\ $$ |  $$ | \$$$$  |      \$$$$$$  |$$ |  $$ |\$$$$$$$\ $$ |$$ |
-\______|\__|  \__|  \____/  \_______|\__|  \__|  \____/        \______/ \__|  \__| \_______|\__|\__|
-
-v0.1 - Self-Healing & Production Safety
-Try-Repair-Retry Loop | HITL Safety | Circuit Breaker
-Type 'help' for commands, 'check system health' to test
-"""
+        """Display welcome banner with gradient yellow dollar signs."""
+        from intellishell.utils.terminal import TerminalColors
+        
+        # ASCII art - exact as provided by user
+        banner_lines = [
+            r"$$$$$$\            $$\               $$\ $$\ $$\  $$$$$$\  $$\                 $$\ $$\ ",
+            r"\_$$  _|           $$ |              $$ |$$ |\__|$$  __$$\ $$ |                $$ |$$ |",
+            r"  $$ |  $$$$$$$\ $$$$$$\    $$$$$$\  $$ |$$ |$$\ $$ /  \__|$$$$$$$\   $$$$$$\  $$ |$$ |",
+            r"  $$ |  $$  __$$\\_$$  _|  $$  __$$\ $$ |$$ |$$ |\$$$$$$\  $$  __$$\ $$  __$$\ $$ |$$ |",
+            r"  $$ |  $$ |  $$ | $$ |    $$$$$$$$ |$$ |$$ |$$ | \____$$\ $$ |  $$ |$$$$$$$$ |$$ |$$ |",
+            r"  $$ |  $$ |  $$ | $$ |$$\ $$   ____|$$ |$$ |$$ |$$\   $$ |$$ |  $$ |$$   ____|$$ |$$ |",
+            r"$$$$$$\ $$ |  $$ | \$$$$  |\$$$$$$$\ $$ |$$ |$$ |\$$$$$$  |$$ |  $$ |\$$$$$$$\ $$ |$$ |",
+            r"\______|\__|  \__|  \____/  \_______|\__|\__|\__| \______/ \__|  \__| \_______|\__|\__|",
+        ]
+        
+        # Gradient yellow colors for dollar signs
+        yellow_bright = "\033[38;2;255;255;0m"      # Bright yellow
+        yellow_medium = "\033[38;2;255;215;0m"      # Gold/yellow-orange
+        yellow_dark = "\033[38;2;255;165;0m"        # Orange-yellow
+        reset = TerminalColors.RESET
+        
+        # Color dollar signs with gradient
+        def color_dollar_signs(line: str) -> str:
+            """Apply gradient yellow color to dollar signs."""
+            if not TerminalColors.supports_color():
+                return line
+            
+            result = ""
+            dollar_count = 0
+            for char in line:
+                if char == '$':
+                    # Cycle through gradient colors
+                    if dollar_count % 3 == 0:
+                        result += yellow_bright + char + reset
+                    elif dollar_count % 3 == 1:
+                        result += yellow_medium + char + reset
+                    else:
+                        result += yellow_dark + char + reset
+                    dollar_count += 1
+                else:
+                    result += char
+            return result
+        
+        # Build banner with colored dollar signs
+        banner = "\n"
+        for line in banner_lines:
+            banner += color_dollar_signs(line) + "\n"
+        banner += "\n\n"
+        banner += "v0.1 - Self-Healing & Production Safety\n"
+        banner += "Try-Repair-Retry Loop | HITL Safety | Circuit Breaker\n"
+        banner += "Type 'help' for commands, 'check system health' to test\n"
+        
         print(banner)
         
         status_parts = []
@@ -178,9 +215,14 @@ Type 'help' for commands, 'check system health' to test
             "what commands are available",
             "show me the commands",
             "list commands",
+            "list the commands",
             "what can I do",
             "show help",
-            "show available commands"
+            "show available commands",
+            "list commands for me",
+            "show commands",
+            "available commands",
+            "what commands"
         ]
         if any(pattern in user_input_lower for pattern in help_patterns):
             info_msg = format_message("ℹ To see available commands, type 'help' or use the 'manifest' command.", success=False, is_warning=True)

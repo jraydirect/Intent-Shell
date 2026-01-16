@@ -1,7 +1,7 @@
-"""Rich display utilities for Intent Shell output formatting."""
+"""Rich display utilities for IntelliShell output formatting."""
 
 from typing import List, Dict, Any, Optional
-from intent_shell.utils.terminal import TerminalColors
+from intellishell.utils.terminal import TerminalColors
 
 
 def format_message(message: str, success: bool = True, is_error: bool = False, is_warning: bool = False) -> str:

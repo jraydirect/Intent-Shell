@@ -1,4 +1,4 @@
-"""System health diagnostics for Intent Shell."""
+"""System health diagnostics for IntelliShell."""
 
 import sys
 import logging
@@ -293,7 +293,7 @@ class SystemDoctor:
             self.run_all_checks()
         
         lines = ["\n╔═══════════════════════════════════════════════════╗"]
-        lines.append("║        Intent Shell - System Health Check        ║")
+        lines.append("║        IntelliShell - System Health Check        ║")
         lines.append("╚═══════════════════════════════════════════════════╝\n")
         
         for check in self.checks:

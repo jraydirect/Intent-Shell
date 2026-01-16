@@ -1,10 +1,10 @@
 """Intent to action mapping with safety controls."""
 
 from typing import Optional
-from intent_shell.providers.registry import ProviderRegistry
-from intent_shell.providers.base import ExecutionResult
-from intent_shell.parser import IntentMatch
-from intent_shell.safety import SafetyController, SafetyLevel
+from intellishell.providers.registry import ProviderRegistry
+from intellishell.providers.base import ExecutionResult
+from intellishell.parser import IntentMatch
+from intellishell.safety import SafetyController, SafetyLevel
 import logging
 
 logger = logging.getLogger(__name__)

@@ -3,7 +3,7 @@
 import os
 import subprocess
 from typing import Optional, Dict, Any
-from intent_shell.providers.base import (
+from intellishell.providers.base import (
     BaseProvider,
     IntentTrigger,
     ExecutionResult,

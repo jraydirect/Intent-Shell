@@ -3,7 +3,7 @@
 import pytest
 import tempfile
 from pathlib import Path
-from intent_shell.utils.transaction_log import TransactionLogger
+from intellishell.utils.transaction_log import TransactionLogger
 
 
 @pytest.fixture

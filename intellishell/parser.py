@@ -131,7 +131,7 @@ class EntityExtractor:
         
         # Check for clipboard reference
         if 'clipboard' in text_lower or 'copied' in text_lower:
-            from intent_shell.utils.clipboard import get_clipboard_content
+            from intellishell.utils.clipboard import get_clipboard_content
             clipboard_content = get_clipboard_content()
             if clipboard_content:
                 entities.append(Entity(

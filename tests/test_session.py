@@ -1,7 +1,7 @@
 """Tests for session state management."""
 
 import pytest
-from intent_shell.session import SessionState, CommandEntry
+from intellishell.session import SessionState, CommandEntry
 from datetime import datetime
 
 

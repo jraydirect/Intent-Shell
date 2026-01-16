@@ -135,7 +135,7 @@ class OllamaClient:
     """
     Client for local Ollama LLM API.
     
-    Provides tool-use capabilities for Intent Shell.
+    Provides tool-use capabilities for IntelliShell.
     """
     
     DEFAULT_HOST = "http://localhost:11434"
@@ -266,7 +266,7 @@ class OllamaClient:
 
 class AIBridge:
     """
-    Bridge between Intent Shell and local LLM.
+    Bridge between IntelliShell and local LLM.
     
     Provides agentic reasoning and fallback for low-confidence matches.
     """
@@ -287,7 +287,7 @@ class AIBridge:
         
         # Build concise dynamic prompt from registry
         prompt_parts = [
-            "You are an AI assistant for Intent Shell, a Windows command automation tool.",
+            "You are an AI assistant for IntelliShell, a Windows command automation tool.",
             "Map user commands to structured intents (tool calls).",
             "",
             "Available Tools:"
@@ -304,7 +304,7 @@ class AIBridge:
         prompt_parts.extend([
             "",
             "Special Commands (handled internally, NOT provider intents):",
-            "- 'help' / '?' - Show available commands (use literal 'help')",
+            "- 'help' / '?' - Show available commands (handled internally, NOT a provider intent)",
             "- 'manifest' - Show system manifest",
             "- 'history' - Show command history",
             "- 'stats' - Show session statistics",
@@ -318,10 +318,10 @@ class AIBridge:
             "- For 'what's in downloads' → list_downloads (not open_downloads)",
             "- Questions about contents → list_* intents, not open_*",
             "- DO NOT create intents that don't exist! Only use intents from the provider list above.",
+            "- DO NOT route help-related queries to providers. Help is handled internally before routing.",
             "",
             "Examples:",
             '"what files are in downloads?" → {"intent": "list_downloads", "provider": "filesystem", "confidence": 0.95, "reasoning": "list files"}',
-            '"what are available commands?" → {"intent": "help", "provider": "builtin", "confidence": 0.9, "reasoning": "use help command"}',
             '"what\'s my computer name?" → {"intent": "get_hostname", "provider": "system_monitor", "confidence": 0.95, "reasoning": "get hostname"}',
         ])
         
@@ -331,7 +331,7 @@ class AIBridge:
     @staticmethod
     def _get_static_system_prompt() -> str:
         """Fallback static system prompt if no registry available."""
-        return """You are an AI assistant for Intent Shell, a Windows command automation tool.
+        return """You are an AI assistant for IntelliShell, a Windows command automation tool.
 
 Your job is to interpret user commands and map them to structured intents.
 

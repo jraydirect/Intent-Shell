@@ -23,7 +23,7 @@ def send_notification(title: str, message: str, duration: int = 5) -> bool:
         notification.notify(
             title=title,
             message=message,
-            app_name="Intent Shell",
+            app_name="IntelliShell",
             timeout=duration
         )
         logger.debug(f"Notification sent via plyer: {title}")
@@ -53,7 +53,7 @@ def send_notification(title: str, message: str, duration: int = 5) -> bool:
     # Try windows-toasts (modern Windows)
     try:
         from windows_toasts import Toast, WindowsToaster
-        toaster = WindowsToaster("Intent Shell")
+        toaster = WindowsToaster("IntelliShell")
         newToast = Toast()
         newToast.text_fields = [title, message]
         toaster.show_toast(newToast)

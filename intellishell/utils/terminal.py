@@ -1,4 +1,4 @@
-"""Terminal styling and color utilities for Intent Shell."""
+"""Terminal styling and color utilities for IntelliShell."""
 
 import sys
 import os
@@ -79,7 +79,7 @@ class TerminalColors:
     
     @staticmethod
     def set_terminal_color(color: str) -> None:
-        """Set terminal foreground color (royal blue for Intent Shell)."""
+        """Set terminal foreground color (royal blue for IntelliShell)."""
         if TerminalColors.supports_color():
             sys.stdout.write(color)
             sys.stdout.flush()
@@ -93,10 +93,10 @@ class TerminalColors:
 
 
 def enable_royal_blue_terminal() -> None:
-    """Enable royal blue terminal color for Intent Shell."""
+    """Enable royal blue terminal color for IntelliShell."""
     TerminalColors.set_terminal_color(TerminalColors.ROYAL_BLUE)
 
 
 def reset_terminal_color() -> None:
-    """Reset terminal color when exiting Intent Shell."""
+    """Reset terminal color when exiting IntelliShell."""
     TerminalColors.reset_terminal_color()

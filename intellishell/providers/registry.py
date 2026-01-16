@@ -1,7 +1,7 @@
 """Provider registry for dynamic provider discovery."""
 
 from typing import Dict, List, Optional, Type
-from intent_shell.providers.base import BaseProvider, IntentTrigger
+from intellishell.providers.base import BaseProvider, IntentTrigger
 import logging
 
 logger = logging.getLogger(__name__)
@@ -68,9 +68,9 @@ class ProviderRegistry:
         Args:
             semantic_memory: Optional SemanticMemory instance for MemoryProvider
         """
-        from intent_shell.providers.filesystem import FileSystemProvider
-        from intent_shell.providers.system_monitor import SystemMonitorProvider
-        from intent_shell.providers.app import AppProvider
+        from intellishell.providers.filesystem import FileSystemProvider
+        from intellishell.providers.system_monitor import SystemMonitorProvider
+        from intellishell.providers.app import AppProvider
         
         providers = [
             FileSystemProvider(),
@@ -80,19 +80,19 @@ class ProviderRegistry:
         
         # Conditionally import advanced providers
         try:
-            from intent_shell.providers.watch_provider import WatchProvider
+            from intellishell.providers.watch_provider import WatchProvider
             providers.append(WatchProvider())
         except ImportError as e:
             logger.debug(f"WatchProvider not available: {e}")
         
         try:
-            from intent_shell.providers.system_provider import SystemProvider
+            from intellishell.providers.system_provider import SystemProvider
             providers.append(SystemProvider())
         except ImportError as e:
             logger.debug(f"SystemProvider not available: {e}")
         
         try:
-            from intent_shell.providers.doctor_provider import DoctorProvider
+            from intellishell.providers.doctor_provider import DoctorProvider
             providers.append(DoctorProvider())
         except ImportError as e:
             logger.debug(f"DoctorProvider not available: {e}")
@@ -100,7 +100,7 @@ class ProviderRegistry:
         # Memory provider (requires semantic_memory)
         if semantic_memory:
             try:
-                from intent_shell.providers.memory_provider import MemoryProvider
+                from intellishell.providers.memory_provider import MemoryProvider
                 providers.append(MemoryProvider(semantic_memory=semantic_memory))
                 logger.info("MemoryProvider registered with semantic memory")
             except ImportError as e:
@@ -136,7 +136,7 @@ class ProviderRegistry:
                 # Determine safety level
                 safety_level = "READ_ONLY"
                 if hasattr(provider.capabilities, '__iter__'):
-                    from intent_shell.providers.base import ProviderCapability
+                    from intellishell.providers.base import ProviderCapability
                     if ProviderCapability.WRITE in provider.capabilities:
                         safety_level = "WRITE"
                 

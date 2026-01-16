@@ -4,7 +4,7 @@ import os
 import asyncio
 from pathlib import Path
 from typing import Optional, Dict, Any, Callable
-from intent_shell.providers.base import (
+from intellishell.providers.base import (
     BaseProvider,
     IntentTrigger,
     ExecutionResult,
@@ -145,8 +145,8 @@ class WatchProvider(BaseProvider):
         
         # Notification callback
         def notify(message: str):
-            from intent_shell.utils.notifications import send_notification
-            send_notification("Intent Shell", message)
+            from intellishell.utils.notifications import send_notification
+            send_notification("IntelliShell", message)
         
         handler = DownloadsHandler(file_extension, notify)
         observer = Observer()

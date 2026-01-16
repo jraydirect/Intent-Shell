@@ -38,7 +38,7 @@ class ExecutionResult:
 
 class BaseProvider(ABC):
     """
-    Abstract base class for all Intent Shell providers.
+    Abstract base class for all IntelliShell providers.
     
     Providers are modular components that handle specific domains
     of system interaction (filesystem, apps, monitoring, etc.).

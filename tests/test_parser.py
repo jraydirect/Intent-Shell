@@ -1,8 +1,8 @@
 """Tests for semantic parser."""
 
 import pytest
-from intent_shell.providers.registry import ProviderRegistry
-from intent_shell.parser import SemanticParser
+from intellishell.providers.registry import ProviderRegistry
+from intellishell.parser import SemanticParser
 
 
 @pytest.fixture

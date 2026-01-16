@@ -4,7 +4,7 @@ import os
 import subprocess
 import ctypes
 from typing import Optional, Dict, Any, List
-from intent_shell.providers.base import (
+from intellishell.providers.base import (
     BaseProvider,
     IntentTrigger,
     ExecutionResult,
@@ -113,7 +113,7 @@ class SystemProvider(BaseProvider):
 
 This command requires Administrator privileges.
 
-To run Intent Shell as Administrator:
+To run IntelliShell as Administrator:
 1. Close this shell
 2. Right-click Command Prompt or PowerShell
 3. Select "Run as Administrator"
@@ -309,7 +309,7 @@ Or use: runas /user:Administrator intent
             processes.sort(key=lambda p: p['memory_mb'], reverse=True)
             
             # Format as rich table
-            from intent_shell.utils.display import format_process_table
+            from intellishell.utils.display import format_process_table
             formatted_table = format_process_table(processes[:10], "Top 10 Processes by Memory")
             
             return ExecutionResult(

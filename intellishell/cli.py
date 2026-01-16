@@ -128,7 +128,7 @@ async def execute_single_command(
 def main() -> int:
     """Main CLI entry point."""
     parser = argparse.ArgumentParser(
-        prog="intellishell",
+        prog="ishell",
         description="IntelliShell - Semantic command shell with AI reasoning",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""

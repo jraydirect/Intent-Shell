@@ -1,8 +1,8 @@
 """Tests for ambiguity resolution."""
 
 import pytest
-from intent_shell.providers.registry import ProviderRegistry
-from intent_shell.parser import SemanticParser, IntentMatch, AmbiguousMatch
+from intellishell.providers.registry import ProviderRegistry
+from intellishell.parser import SemanticParser, IntentMatch, AmbiguousMatch
 
 
 @pytest.fixture

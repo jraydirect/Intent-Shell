@@ -3,7 +3,7 @@
 import os
 from pathlib import Path
 from typing import Optional, Dict, Any, List
-from intent_shell.providers.base import (
+from intellishell.providers.base import (
     BaseProvider,
     IntentTrigger,
     ExecutionResult,
@@ -307,14 +307,14 @@ class FileSystemProvider(BaseProvider):
             recent_files = files[:10]
             
             if not recent_files:
-                from intent_shell.utils.display import format_message
+                from intellishell.utils.display import format_message
                 return ExecutionResult(
                     success=True,
                     message=format_message(f"No files found in {target_dir}", success=True)
                 )
             
             # Format as rich table
-            from intent_shell.utils.display import format_file_table
+            from intellishell.utils.display import format_file_table
             title = f"Recent files in {target_dir.name}"
             formatted_table = format_file_table(recent_files, title)
             

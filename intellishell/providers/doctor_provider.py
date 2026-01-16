@@ -1,13 +1,13 @@
 """Doctor provider for system health diagnostics."""
 
 from typing import Optional, Dict, Any
-from intent_shell.providers.base import (
+from intellishell.providers.base import (
     BaseProvider,
     IntentTrigger,
     ExecutionResult,
     ProviderCapability
 )
-from intent_shell.doctor import SystemDoctor
+from intellishell.doctor import SystemDoctor
 import logging
 
 logger = logging.getLogger(__name__)

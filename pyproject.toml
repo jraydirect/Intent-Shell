@@ -3,13 +3,13 @@ requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "intent-shell"
+name = "intellishell"
 version = "0.1.0"
-description = "Windows-first semantic command shell with AI reasoning and vector memory"
+description = "IntelliShell - Windows-first semantic command shell with AI reasoning and vector memory"
 readme = "README.md"
 requires-python = ">=3.8"
 authors = [
-    {name = "Intent Shell Contributors"}
+    {name = "IntelliShell Contributors"}
 ]
 classifiers = [
     "Development Status :: 3 - Alpha",
@@ -53,10 +53,11 @@ dev = [
 ]
 
 [project.scripts]
-intent = "intent_shell.cli:main"
+ishell = "intellishell.cli:main"
+intellishell = "intellishell.cli:main"
 
 [tool.setuptools.packages.find]
-include = ["intent_shell*"]
+include = ["intellishell*"]
 
 [tool.black]
 line-length = 100

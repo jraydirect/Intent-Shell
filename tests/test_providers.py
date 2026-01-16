@@ -1,9 +1,9 @@
 """Tests for provider architecture."""
 
 import pytest
-from intent_shell.providers.registry import ProviderRegistry
-from intent_shell.providers.filesystem import FileSystemProvider
-from intent_shell.providers.app import AppProvider
+from intellishell.providers.registry import ProviderRegistry
+from intellishell.providers.filesystem import FileSystemProvider
+from intellishell.providers.app import AppProvider
 
 
 def test_provider_registration():
