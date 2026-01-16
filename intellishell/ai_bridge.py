@@ -316,12 +316,17 @@ class AIBridge:
             "- For 'what are available commands' / 'show commands' / 'list commands' → suggest user type 'help'",
             "- For 'what files in X' or 'show files in X' → use list_downloads/list_desktop/list_files",
             "- For 'what's in downloads' → list_downloads (not open_downloads)",
+            "- For 'what processes' / 'show processes' / 'list processes' → use list_processes (READ-ONLY)",
             "- Questions about contents → list_* intents, not open_*",
+            "- Questions asking 'what' / 'show' / 'list' → use READ-ONLY list_* intents, NOT kill/delete intents",
+            "- NEVER route viewing/listing queries to destructive actions (kill, delete, etc.)",
             "- DO NOT create intents that don't exist! Only use intents from the provider list above.",
             "- DO NOT route help-related queries to providers. Help is handled internally before routing.",
             "",
             "Examples:",
             '"what files are in downloads?" → {"intent": "list_downloads", "provider": "filesystem", "confidence": 0.95, "reasoning": "list files"}',
+            '"what processes are running?" → {"intent": "list_processes", "provider": "system", "confidence": 0.95, "reasoning": "list processes"}',
+            '"show me running processes" → {"intent": "list_processes", "provider": "system", "confidence": 0.95, "reasoning": "list processes"}',
             '"what\'s my computer name?" → {"intent": "get_hostname", "provider": "system_monitor", "confidence": 0.95, "reasoning": "get hostname"}',
         ])
         
