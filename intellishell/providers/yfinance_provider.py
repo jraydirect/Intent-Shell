@@ -385,6 +385,7 @@ class YahooFinanceProvider(BaseProvider):
         super().__init__()
         self._api: Optional[YahooFinanceAPI] = None
         self._recent_results: List[Dict[str, Any]] = []
+        self._recent_symbol: Optional[str] = None  # Track most recent stock symbol
         self._initialize_api()
     
     def _initialize_api(self) -> None:
@@ -534,6 +535,23 @@ class YahooFinanceProvider(BaseProvider):
                     "market events"
                 ]
             ),
+            IntentTrigger(
+                pattern="open tradingview",
+                intent_name="open_tradingview",
+                weight=1.2,  # Higher weight to prioritize
+                aliases=[
+                    "open chart",
+                    "open stock chart",
+                    "show chart",
+                    "show tradingview",
+                    "tradingview",
+                    "open trading view",
+                    "open the chart",
+                    "open the tradingview chart",
+                    "view chart",
+                    "view tradingview"
+                ]
+            ),
         ]
     
     async def execute(
@@ -561,6 +579,8 @@ class YahooFinanceProvider(BaseProvider):
                 return await self._get_earnings(context)
             elif intent_name == "yahoo_economic_events":
                 return await self._get_economic_events(context)
+            elif intent_name == "open_tradingview":
+                return await self._open_tradingview(context)
             else:
                 return ExecutionResult(
                     success=False,
@@ -649,7 +669,8 @@ class YahooFinanceProvider(BaseProvider):
         # Filter out common words
         exclude_words = {
             "YAHOO", "FINANCE", "STOCK", "QUOTE", "NEWS", "PRICE", "HISTORY", "INFO", "SEARCH",
-            "THE", "IS", "AT", "IT", "NOW", "TODAY", "TRADING", "CURRENT", "WHAT", "HOW", "MUCH"
+            "THE", "IS", "AT", "IT", "NOW", "TODAY", "TRADING", "CURRENT", "WHAT", "HOW", "MUCH",
+            "CHART", "TRADINGVIEW", "VIEW", "SHOW", "OPEN"
         }
         for match in matches:
             if match not in exclude_words and len(match) >= 2:
@@ -775,6 +796,9 @@ class YahooFinanceProvider(BaseProvider):
         # Handle multiple symbols
         if len(converted_symbols) > 1:
             try:
+                # Track the first symbol for future TradingView opens
+                self._recent_symbol = converted_symbols[0]
+                
                 quotes = self._api.get_multiple_quotes(converted_symbols)
                 
                 if not quotes or all(q is None for q in quotes.values()):
@@ -827,6 +851,9 @@ class YahooFinanceProvider(BaseProvider):
         
         # Single symbol case
         try:
+            # Track the symbol for future TradingView opens
+            self._recent_symbol = symbol
+            
             quote = self._api.get_stock_quote(symbol)
             
             if not quote:
@@ -911,6 +938,9 @@ class YahooFinanceProvider(BaseProvider):
                 message="Please provide a stock symbol. Example: 'yahoo news AAPL' or 'finance news MSFT'"
             )
         
+        # Track the symbol for future TradingView opens
+        self._recent_symbol = symbol
+        
         # Extract limit
         limit = 10
         if "entities" in context:
@@ -978,6 +1008,9 @@ class YahooFinanceProvider(BaseProvider):
                 success=False,
                 message="Please provide a stock symbol. Example: 'yahoo history AAPL' or 'stock chart MSFT'"
             )
+        
+        # Track the symbol for future TradingView opens
+        self._recent_symbol = symbol
         
         # Extract period and interval from context
         parameters = context.get("parameters", {})
@@ -1165,6 +1198,9 @@ class YahooFinanceProvider(BaseProvider):
                 success=False,
                 message="Please provide a stock symbol. Example: 'yahoo info AAPL' or 'stock info MSFT'"
             )
+        
+        # Track the symbol for future TradingView opens
+        self._recent_symbol = symbol
         
         try:
             info = self._api.get_stock_info(symbol)
@@ -1487,7 +1523,7 @@ class YahooFinanceProvider(BaseProvider):
         is_available = YFINANCE_AVAILABLE and self._api is not None
         
         if is_available:
-            message = "Yahoo Finance provider is active and ready to use.\n\nAvailable commands:\n- yahoo quote <SYMBOL> - Get stock quote\n- yahoo news <SYMBOL> - Get stock news\n- yahoo history <SYMBOL> - Get historical data\n- yahoo search <QUERY> - Search for stocks\n- yahoo info <SYMBOL> - Get detailed stock information\n- yahoo earnings - Get earnings calendar\n- yahoo economic events - Get economic events calendar"
+            message = "Yahoo Finance provider is active and ready to use.\n\nAvailable commands:\n- yahoo quote <SYMBOL> - Get stock quote\n- yahoo news <SYMBOL> - Get stock news\n- yahoo history <SYMBOL> - Get historical data\n- yahoo search <QUERY> - Search for stocks\n- yahoo info <SYMBOL> - Get detailed stock information\n- yahoo earnings - Get earnings calendar\n- yahoo economic events - Get economic events calendar\n- open tradingview - Open TradingView chart for recent stock"
         else:
             message = "Yahoo Finance provider not available. Install yfinance library with: pip install yfinance"
         
@@ -1496,3 +1532,74 @@ class YahooFinanceProvider(BaseProvider):
             message=message,
             data={"available": is_available}
         )
+    
+    async def _open_tradingview(self, context: Dict[str, Any]) -> ExecutionResult:
+        """Open TradingView chart in Brave browser for a stock."""
+        # Command words that should be ignored when extracting symbols
+        command_words = {"chart", "tradingview", "trading", "view", "show", "open", "the"}
+        
+        # Try to get symbol from context first
+        symbol = self._extract_symbol(context)
+        
+        # If extracted symbol is actually a command word, ignore it
+        if symbol and symbol.upper() in {w.upper() for w in command_words}:
+            symbol = None
+            logger.debug(f"Ignoring command word '{symbol}' as symbol")
+        
+        # If no symbol in context, use the most recently discussed stock
+        if not symbol and self._recent_symbol:
+            symbol = self._recent_symbol
+            logger.info(f"Using recent symbol: {symbol}")
+        
+        if not symbol:
+            return ExecutionResult(
+                success=False,
+                message="No stock symbol specified and no recent stock found. Please specify a symbol (e.g., 'open tradingview AAPL') or query a stock first (e.g., 'yahoo quote AAPL')."
+            )
+        
+        # Build TradingView URL
+        tradingview_url = f"https://www.tradingview.com/chart/?symbol={symbol}"
+        
+        # Try to open Brave with the URL (similar to polymarket provider)
+        try:
+            # Try common Brave executable paths
+            brave_paths = [
+                "brave.exe",
+                r"C:\Program Files\BraveSoftware\Brave-Browser\Application\brave.exe",
+                r"C:\Program Files (x86)\BraveSoftware\Brave-Browser\Application\brave.exe",
+                os.path.expanduser(r"~\AppData\Local\BraveSoftware\Brave-Browser\Application\brave.exe"),
+            ]
+            
+            brave_found = False
+            for brave_path in brave_paths:
+                if os.path.exists(brave_path) or brave_path == "brave.exe":
+                    try:
+                        # Use subprocess to launch Brave with URL
+                        subprocess.Popen([brave_path, tradingview_url], shell=False)
+                        brave_found = True
+                        break
+                    except Exception as e:
+                        logger.debug(f"Failed to launch Brave from {brave_path}: {e}")
+                        continue
+            
+            if not brave_found:
+                # Fallback: try using os.startfile (Windows default browser)
+                try:
+                    os.startfile(tradingview_url)
+                except Exception as e:
+                    return ExecutionResult(
+                        success=False,
+                        message=f"Could not open browser. Error: {e}"
+                    )
+            
+            return ExecutionResult(
+                success=True,
+                message=f"Opening TradingView chart for {symbol} in Brave browser...",
+                data={"symbol": symbol, "url": tradingview_url}
+            )
+        except Exception as e:
+            logger.exception(f"Error opening TradingView: {e}")
+            return ExecutionResult(
+                success=False,
+                message=f"Error opening TradingView: {e}"
+            )
