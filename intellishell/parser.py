@@ -169,24 +169,47 @@ class SemanticParser:
         "are there", "is there", "do you", "does"
     ]
     
-    def __init__(self, registry, ai_bridge=None):
+    def __init__(self, registry, ai_bridge=None, use_rust: bool = True):
         """
         Initialize parser with provider registry and optional AI bridge.
         
         Args:
             registry: ProviderRegistry instance
             ai_bridge: Optional AIBridge for LLM fallback
+            use_rust: Use Rust parser backend if available (default: True)
         """
         self.registry = registry
         self.ai_bridge = ai_bridge
         self._trigger_cache: List[Tuple] = []
         self._entity_extractor = EntityExtractor()
+        self._use_rust = use_rust
+        self._rust_backend = None
+        
+        # Try to initialize Rust backend if requested
+        if use_rust:
+            try:
+                from intellishell.parser_rust import RustParserBackend, RUST_AVAILABLE
+                if RUST_AVAILABLE:
+                    self._rust_backend = RustParserBackend()
+                    logger.info("Rust parser backend initialized")
+                else:
+                    logger.debug("Rust parser not available, using Python fallback")
+            except ImportError as e:
+                logger.debug(f"Rust parser backend not available: {e}")
+        
         self._rebuild_cache()
     
     def _rebuild_cache(self) -> None:
         """Rebuild trigger cache from registry."""
         self._trigger_cache = self.registry.get_all_triggers()
         logger.debug(f"Rebuilt trigger cache with {len(self._trigger_cache)} triggers")
+        
+        # Also update Rust backend if available
+        if self._rust_backend:
+            try:
+                self._rust_backend.load_triggers(self._trigger_cache)
+            except Exception as e:
+                logger.warning(f"Failed to update Rust backend triggers: {e}")
     
     def _is_natural_language_query(self, user_input: str) -> bool:
         """
@@ -225,8 +248,16 @@ class SemanticParser:
         """
         Calculate similarity score between input and pattern.
         
-        Optimized for <50ms performance.
+        Optimized for <50ms performance. Uses Rust backend if available.
         """
+        # Try Rust backend first if available
+        if self._rust_backend:
+            try:
+                return self._rust_backend.calculate_similarity(input_str, pattern)
+            except Exception as e:
+                logger.debug(f"Rust similarity calculation failed, using Python: {e}")
+        
+        # Fallback to Python implementation
         # Fast path: exact substring match
         if pattern in input_str:
             return 1.0
@@ -306,6 +337,28 @@ class SemanticParser:
                 logger.warning("LLM failed to interpret natural language query, falling back to rule-based")
         
         # --- RULE-BASED MATCHING (fallback or exact commands) ---
+        # Try Rust backend first if available
+        if self._rust_backend:
+            try:
+                rust_result = self._rust_backend.match_intent(normalized_input)
+                if rust_result:
+                    from intellishell.parser_rust import convert_rust_match_to_python
+                    python_result = convert_rust_match_to_python(rust_result, user_input)
+                    
+                    if python_result:
+                        # Add entities to result
+                        if isinstance(python_result, IntentMatch):
+                            python_result.entities = entities
+                        elif isinstance(python_result, AmbiguousMatch):
+                            for sug in python_result.suggestions:
+                                sug.entities = entities
+                        
+                        logger.debug("Rust parser matched intent successfully")
+                        return python_result
+            except Exception as e:
+                logger.debug(f"Rust matching failed, using Python: {e}")
+        
+        # Fallback to Python implementation
         matches: List[IntentMatch] = []
         
         for provider, trigger in self._trigger_cache:

@@ -1,0 +1,14 @@
+C:\Users\jrayd\OneDrive\Desktop\intent\parser_core\target\release\deps\serde-ff91ca33bdf03564.d: C:\Users\jrayd\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde-1.0.228\src\lib.rs C:\Users\jrayd\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde-1.0.228\src\integer128.rs C:\Users\jrayd\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde-1.0.228\src\private\mod.rs C:\Users\jrayd\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde-1.0.228\src\private\de.rs C:\Users\jrayd\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde-1.0.228\src\private\ser.rs C:\Users\jrayd\OneDrive\Desktop\intent\parser_core\target\release\build\serde-0904142beeccba7d\out/private.rs
+
+C:\Users\jrayd\OneDrive\Desktop\intent\parser_core\target\release\deps\libserde-ff91ca33bdf03564.rlib: C:\Users\jrayd\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde-1.0.228\src\lib.rs C:\Users\jrayd\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde-1.0.228\src\integer128.rs C:\Users\jrayd\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde-1.0.228\src\private\mod.rs C:\Users\jrayd\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde-1.0.228\src\private\de.rs C:\Users\jrayd\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde-1.0.228\src\private\ser.rs C:\Users\jrayd\OneDrive\Desktop\intent\parser_core\target\release\build\serde-0904142beeccba7d\out/private.rs
+
+C:\Users\jrayd\OneDrive\Desktop\intent\parser_core\target\release\deps\libserde-ff91ca33bdf03564.rmeta: C:\Users\jrayd\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde-1.0.228\src\lib.rs C:\Users\jrayd\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde-1.0.228\src\integer128.rs C:\Users\jrayd\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde-1.0.228\src\private\mod.rs C:\Users\jrayd\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde-1.0.228\src\private\de.rs C:\Users\jrayd\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde-1.0.228\src\private\ser.rs C:\Users\jrayd\OneDrive\Desktop\intent\parser_core\target\release\build\serde-0904142beeccba7d\out/private.rs
+
+C:\Users\jrayd\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde-1.0.228\src\lib.rs:
+C:\Users\jrayd\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde-1.0.228\src\integer128.rs:
+C:\Users\jrayd\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde-1.0.228\src\private\mod.rs:
+C:\Users\jrayd\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde-1.0.228\src\private\de.rs:
+C:\Users\jrayd\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\serde-1.0.228\src\private\ser.rs:
+C:\Users\jrayd\OneDrive\Desktop\intent\parser_core\target\release\build\serde-0904142beeccba7d\out/private.rs:
+
+# env-dep:OUT_DIR=C:\\Users\\jrayd\\OneDrive\\Desktop\\intent\\parser_core\\target\\release\\build\\serde-0904142beeccba7d\\out
