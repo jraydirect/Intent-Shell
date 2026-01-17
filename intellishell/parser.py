@@ -327,6 +327,71 @@ class SemanticParser:
             entities = self._entity_extractor.extract(expanded_input)
             logger.debug(f"Extracted {len(entities)} entities: {[e.type for e in entities]}")
         
+        # --- PREFIX-BASED STRICT ROUTING ---
+        # Check for provider-specific prefixes that should route strictly
+        prefix_routes = {
+            ('stock', 'stocks'): 'yfinance',
+            ('poly', 'polymarket'): 'polymarket',
+        }
+        
+        for prefixes, provider_name in prefix_routes.items():
+            for prefix in prefixes:
+                if normalized_input.startswith(prefix + ' ') or normalized_input == prefix:
+                    # Force route to this provider
+                    logger.info(f"Prefix-based routing: '{prefix}' -> {provider_name}")
+                    
+                    # Get the provider
+                    provider = self.registry.get_provider(provider_name)
+                    if provider:
+                        # Try to match against this provider's triggers only
+                        best_match = None
+                        best_score = 0.0
+                        
+                        for trigger in provider.get_triggers():
+                            # Try the trigger pattern and all aliases
+                            patterns_to_try = [trigger.pattern] + trigger.aliases
+                            
+                            for pattern in patterns_to_try:
+                                score = self._calculate_similarity(normalized_input, pattern.lower())
+                                if score > best_score:
+                                    best_score = score
+                                    best_match = (provider, trigger, pattern)
+                        
+                        # If we found a match, return it (even with lower confidence)
+                        if best_match and best_score >= 0.3:  # Lower threshold for prefix-routed queries
+                            provider, trigger, pattern = best_match
+                            logger.info(f"Prefix-routed match: {trigger.intent_name} (confidence: {best_score:.2f})")
+                            return IntentMatch(
+                                intent_name=trigger.intent_name,
+                                provider_name=provider.name,
+                                confidence=best_score,
+                                trigger_pattern=pattern,
+                                original_input=user_input,
+                                entities=entities,
+                                source="prefix_routed"
+                            )
+                        
+                        # If no good match, try LLM
+                        if use_llm_fallback and self.ai_bridge and self.ai_bridge.is_available():
+                            logger.info(f"Prefix-routed to {provider_name}, trying LLM")
+                            llm_result = self.ai_bridge.interpret_command(user_input)
+                            
+                            if llm_result and llm_result.success and llm_result.intent_request:
+                                req = llm_result.intent_request
+                                # Verify it's from the correct provider
+                                if req.provider == provider_name:
+                                    logger.info(f"LLM prefix-routed match: {req.intent} (confidence: {req.confidence:.2f})")
+                                    return IntentMatch(
+                                        intent_name=req.intent,
+                                        provider_name=req.provider,
+                                        confidence=req.confidence,
+                                        trigger_pattern="llm_prefix_routed",
+                                        original_input=user_input,
+                                        entities=entities,
+                                        source="llm_prefix_routed",
+                                        parameters=req.parameters
+                                    )
+        
         # --- SEMANTIC ROUTER: LLM-First for Natural Language ---
         is_nl_query = self._is_natural_language_query(user_input)
         

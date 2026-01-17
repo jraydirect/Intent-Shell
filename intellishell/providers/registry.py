@@ -123,6 +123,14 @@ class ProviderRegistry:
         except ImportError as e:
             logger.debug(f"PolymarketProvider not available: {e}")
         
+        # Yahoo Finance provider (requires yfinance library)
+        try:
+            from intellishell.providers.yfinance_provider import YahooFinanceProvider
+            providers.append(YahooFinanceProvider())
+            logger.info("YahooFinanceProvider registered")
+        except ImportError as e:
+            logger.debug(f"YahooFinanceProvider not available: {e}")
+        
         for provider in providers:
             self.register(provider)
         
