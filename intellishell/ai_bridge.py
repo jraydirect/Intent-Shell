@@ -449,6 +449,19 @@ class AIBridge:
             '"open discord" → {"intent": "launch_app", "provider": "app", "parameters": {"app_name": "discord"}, "confidence": 0.95, "reasoning": "launch application"}',
             '"can you open the app brave" → {"intent": "launch_app", "provider": "app", "parameters": {"app_name": "brave"}, "confidence": 0.95, "reasoning": "launch application"}',
             '"what\'s my computer name?" → {"intent": "get_hostname", "provider": "system_monitor", "confidence": 0.95, "reasoning": "get hostname"}',
+            '"will the us invade greenland?" → {"intent": "poly_search", "provider": "polymarket", "parameters": {"query": "us invade greenland"}, "confidence": 0.95, "reasoning": "prediction market search"}',
+            '"what are the odds trump wins?" → {"intent": "poly_search", "provider": "polymarket", "parameters": {"query": "trump wins"}, "confidence": 0.95, "reasoning": "probability search"}',
+            '"will bitcoin hit 100k?" → {"intent": "poly_search", "provider": "polymarket", "parameters": {"query": "bitcoin hit 100k"}, "confidence": 0.95, "reasoning": "prediction market search"}',
+        ])
+        
+        # Add specific rules for prediction market questions
+        prompt_parts.extend([
+            "",
+            "Prediction Market Questions:",
+            "- Questions starting with 'will' (e.g., 'will X happen?', 'will the Y?') → use poly_search (polymarket provider)",
+            "- Questions about odds, probability, or chances → use poly_search (polymarket provider)",
+            "- 'will [event]?' or 'will [question]?' → poly_search with query parameter extracted from the question",
+            "- These are NOT system questions - they are prediction market queries",
         ])
         
         self._system_prompt = "\n".join(prompt_parts)

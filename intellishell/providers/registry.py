@@ -115,6 +115,14 @@ class ProviderRegistry:
         except ImportError as e:
             logger.debug(f"ClipboardProvider not available: {e}")
         
+        # Polymarket provider (requires requests library)
+        try:
+            from intellishell.providers.polymarket_provider import PolymarketProvider
+            providers.append(PolymarketProvider())
+            logger.info("PolymarketProvider registered")
+        except ImportError as e:
+            logger.debug(f"PolymarketProvider not available: {e}")
+        
         for provider in providers:
             self.register(provider)
         

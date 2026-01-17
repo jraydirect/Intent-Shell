@@ -169,7 +169,8 @@ class SemanticParser:
     NL_MARKERS = [
         "what", "show", "tell", "find", "list", "where", "which", "who",
         "how", "can you", "could you", "will you", "please",
-        "are there", "is there", "do you", "does"
+        "are there", "is there", "do you", "does",
+        "will the", "will [", "will "  # Prediction questions
     ]
     
     def __init__(self, registry, ai_bridge=None, use_rust: bool = True):
